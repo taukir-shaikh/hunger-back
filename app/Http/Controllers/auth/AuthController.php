@@ -16,7 +16,6 @@ class AuthController extends Controller
         try {
             $validated = $request->validated();
             if ($validated) {
-                // Proceed with registration logic using $authService
                 $result = $authService->register($validated);
                 return response()->json($result, 201);
             }
@@ -38,7 +37,7 @@ class AuthController extends Controller
         $validated = $request->validated();
         if ($validated) {
             $result = $authService->login($validated);
-            return response()->json(['msg'=> 'Login Success','data'=> $result]);
+            return response()->json($result, 200);
         } else {
             return response()->json(['message' => 'Validation failed'], 422);
         }
@@ -47,5 +46,8 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        auth()->user()->tokens()->delete();
+        return response()->json(['message' => 'Logged out successfully'], 200);
+
     }
 }

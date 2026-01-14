@@ -7,6 +7,8 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\UserRepository;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
@@ -19,7 +21,6 @@ class AuthService
         if ($role->level_code === "ADMIN") {
             throw new Exception("Cannot register as Admin");
         }
-        // Map user_level_id and set default status
         $data['user_level_id'] = $role->user_level_id ?? $role->id ?? $role->user_id ?? null;
         if (!$data['user_level_id']) {
             throw new Exception("User level ID not found");
@@ -27,9 +28,7 @@ class AuthService
         $data['status'] = $data['status'] ?? ($role->level_code === 'DELIVERY' ? 'PENDING' : 'ACTIVE');
         $userRepository = new UserRepository();
         $userData = $userRepository->createUser($data);
-        // Retrieve the Eloquent TbUsers model instance
         $user = TbUsers::where('email', $userData->email)->first();
-        // Generate Sanctum token
         $token = $user->createToken('auth_token')->plainTextToken;
         return [
             'message' => 'User registered successfully',
@@ -38,7 +37,26 @@ class AuthService
         ];
     }
 
-    public function login(array $data){
-        
+    public function login(array $data)
+    {
+        $user = TbUsers::where('email', $data['email'])->first();
+        if (!$user || !Hash::check($data['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Invalid Credentials']
+            ]);
+        }
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'msg' => 'Login Sucess',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'user_level_id' => $user->user_level_id,
+            ],
+            'token' => $token,
+            'token_type' => 'Bearer',
+        ]);
     }
 }

@@ -3,9 +3,13 @@
 use App\Http\Controllers\Admin\RestaurantController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PublicRestaurantController;
+use App\Http\Controllers\RestaurantOrderController;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -24,12 +28,44 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::prefix('v1')->group(function () {
-    
-    Route::prefix('admin')->middleware(['auth:sanctum', 'rolecheck:ADMIN'])->group(function () {
+    // Admin Routes
+    Route::prefix('admin')->middleware(['auth:sanctum', RoleMiddleware::class . ':ADMIN'])->group(function () {
         Route::post('restaurants', [RestaurantController::class, 'store']);
         Route::put('restaurants/{id}', [RestaurantController::class, 'update']);
         Route::put('restaurants/{id}/approve', [RestaurantController::class, 'approve']);
         Route::put('restaurants/{id}/reject', [RestaurantController::class, 'reject']);
+        //admin routes for orders
+        Route::put('orders', [OrderController::class, 'index']);
+        Route::put('orders/{id}', [OrderController::class, 'show']);
+        Route::put('orders/{id}/cancel', [OrderController::class, 'cancel']);
+        Route::put('orders/{id}/force-status', [OrderController::class, 'forceStatus']);
+        Route::put('orders/{id}/assign-delivery', [OrderController::class, 'assignDelivery']);
+    });
+
+    // User Routes
+    Route::prefix('user')->middleware(['auth:sanctum', RoleMiddleware::class . ':USER'])->group(function () {
+        Route::post('orders', [OrderController::class, 'orderStore']);
+        Route::get('orders', [OrderController::class, 'orderIndex']);
+        Route::get('orders/{id}', [OrderController::class, 'orderShow']);
+        Route::put('orders/{id}/cancel', [OrderController::class, 'orderCancel']);
+        Route::put('orders/{id}', [OrderController::class, 'orderUpdate']);
+    });
+    // Restaurant Order Management Routes
+    Route::prefix('restaurant')->middleware(['auth:sanctum', RoleMiddleware::class . ':RESTAURANT'])->group(function () {
+        Route::get('orders', [RestaurantOrderController::class, 'index']);
+        Route::get('orders/{id}', [RestaurantOrderController::class, 'show']);
+        Route::put('orders/{id}/accept', [RestaurantOrderController::class, 'accept']);
+        Route::put('orders/{id}/reject', [RestaurantOrderController::class, 'reject']);
+        Route::put('orders/{id}/preparing', [RestaurantOrderController::class, 'preparing']);
+        Route::put('orders/{id}/ready', [RestaurantOrderController::class, 'ready']);
+    });
+
+    // Delivery Order Management Routes
+    Route::prefix('delivery')->middleware(['auth:sanctum', RoleMiddleware::class . ':DELIVERY'])->group(function () {
+        Route::get('orders', [OrderController::class, 'index']);
+        Route::get('orders/{id}', [OrderController::class, 'show']);
+        Route::put('orders/{id}/pickup', [OrderController::class, 'pickup']);
+        Route::put('orders/{id}/deliver', [OrderController::class, 'deliver']);
     });
 
     Route::get('restaurants', [PublicRestaurantController::class, 'index']);

@@ -29,6 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::prefix('v1')->group(function () {
+    Route::get('orders/{id}/timeline', [OrderController::class, 'getOrderTimeline'])
+        ->middleware('auth:sanctum');
     // Admin Routes
     Route::prefix('admin')->middleware(['auth:sanctum', RoleMiddleware::class . ':ADMIN'])->group(function () {
         Route::post('restaurants', [RestaurantController::class, 'store']);
@@ -49,23 +51,23 @@ Route::prefix('v1')->group(function () {
         Route::post('orders', [OrderController::class, 'orderStore']);
         Route::get('orders', [OrderController::class, 'orderIndex']);
         Route::get('orders/{id}', [OrderController::class, 'orderShow']);
-        Route::put('orders/{id}/cancel', [OrderController::class, 'orderCancel']);
+        Route::get('orders/{id}/cancel', [OrderController::class, 'cancelOrder']);
         Route::put('orders/{id}', [OrderController::class, 'orderUpdate']);
     });
     // Restaurant Order Management Routes
     Route::prefix('restaurant')->middleware(['auth:sanctum', RoleMiddleware::class . ':RESTAURANT'])->group(function () {
         Route::get('orders', [RestaurantOrderController::class, 'index']);
         Route::get('orders/{id}', [RestaurantOrderController::class, 'show']);
-        Route::put('orders/{id}/accept', [RestaurantOrderController::class, 'accept']);
-        Route::put('orders/{id}/reject', [RestaurantOrderController::class, 'reject']);
-        Route::put('orders/{id}/preparing', [RestaurantOrderController::class, 'preparing']);
-        Route::put('orders/{id}/ready', [RestaurantOrderController::class, 'ready']);
+        Route::put('orders/{id}/accept', [RestaurantOrderController::class, 'acceptOrder']);
+        Route::put('orders/{id}/reject', [RestaurantOrderController::class, 'rejectOrder']);
+        Route::put('orders/{id}/preparing', [RestaurantOrderController::class, 'preparingOrder']);
+        Route::put('orders/{id}/ready', [RestaurantOrderController::class, 'readyOrder']);
     });
 
     // Delivery Order Management Routes
     Route::prefix('delivery')->middleware(['auth:sanctum', RoleMiddleware::class . ':DELIVERY'])->group(function () {
-        Route::get('orders', [OrderController::class, 'index']);
-        Route::get('orders/{id}', [OrderController::class, 'show']);
+        // Route::get('orders', [OrderController::class, 'index']);
+        // Route::get('orders/{id}', [OrderController::class, 'show']);
         Route::put('orders/{id}/pickup', [OrderController::class, 'pickup']);
         Route::put('orders/{id}/deliver', [OrderController::class, 'deliver']);
     });

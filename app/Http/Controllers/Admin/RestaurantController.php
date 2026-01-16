@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\OrderService;
 use App\Services\RestaurantService;
 use DB;
 use Illuminate\Http\Request;
@@ -58,7 +59,7 @@ class RestaurantController extends Controller
         return response()->json(['message' => 'Restaurant approved successfully'], 200);
     }
 
-    public function reject($id)
+    public function reject($id, OrderService $service)
     {
         $restaurant = DB::table('tb_restaurants')->where('id', $id)->first();
         if (!$restaurant) {

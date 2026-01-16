@@ -46,7 +46,8 @@ class OrderRepository
         }
     }
 
-    public function logOrderStatus(int $orderId, ?string $old_status,string $new_status,string $changedBy){
+    public function logOrderStatus(int $orderId, ?string $old_status, string $new_status, string $changedBy)
+    {
         DB::table('tb_order_status_history')->insert([
             'order_id' => $orderId,
             'old_status' => $old_status ?? 'created',
@@ -56,5 +57,24 @@ class OrderRepository
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
+    }
+
+    public function cancelOrder(int $orderId, string $status = 'USER_CANCELLED')
+    {
+        $res = DB::table('tb_orders')->where('order_id', $orderId)->update(['status' => $status]);
+        return $res;
+    }
+
+    public function getOrderTimeline(int $orderId)
+    {
+        return DB::table('tb_order_status_history')
+            ->where('order_id', $orderId)
+            ->orderBy('created_at', 'asc')
+            ->get([
+                'old_status',
+                'new_status',
+                'changed_by',
+                'created_at'
+            ]);
     }
 }

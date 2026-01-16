@@ -19,7 +19,17 @@ class UserRepository
             'user_level_id' => $data['user_level_id'],
             'is_active' => $isActive,
         ]);
+        return $user;
+    }
 
+    public function updateUser($userId, array $data)
+    {
+        $user = TbUsers::find($userId);
+        if (!$user) {
+            return null;
+        }
+        $user->fill($data);
+        $user->save();
         return $user;
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PublicRestaurantController;
 use App\Http\Controllers\RestaurantOrderController;
+use App\Http\Controllers\UserController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +45,7 @@ Route::prefix('v1')->group(function () {
 
     // User Routes
     Route::prefix('user')->middleware(['auth:sanctum', RoleMiddleware::class . ':USER'])->group(function () {
+        Route::put('profile', [UserController::class, 'updateProfile']);
         Route::post('orders', [OrderController::class, 'orderStore']);
         Route::get('orders', [OrderController::class, 'orderIndex']);
         Route::get('orders/{id}', [OrderController::class, 'orderShow']);

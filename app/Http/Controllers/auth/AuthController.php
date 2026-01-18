@@ -5,7 +5,9 @@ namespace App\Http\Controllers\auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\auth\LoginRequest;
 use App\Http\Requests\auth\RegisterRequest;
+use App\Models\TbUsers;
 use App\Services\Auth\AuthService;
+use App\Services\EmailOtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -49,5 +51,52 @@ class AuthController extends Controller
         auth()->user()->tokens()->delete();
         return response()->json(['message' => 'Logged out successfully'], 200);
 
+    }
+    public function verifyOtp(Request $request, EmailOtpService $emailService)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+        ]);
+        $user = TbUsers::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
+        $isValid = $emailService->verify($user, $request->otp);
+
+        if (!$isValid) {
+            return response()->json([
+                'message' => 'Invalid or expired OTP'
+            ], 422);
+        }
+
+        // 4️⃣ Success response
+        return response()->json([
+            'message' => 'Email verified successfully'
+        ]);
+    }
+    public function sendOtp(Request $request, TbUsers $userModel, EmailOtpService $emailService)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+        $user = $userModel->where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
+        $otp = $emailService->generate($user);
+        if (!$otp) {
+            return response()->json([
+                'message' => 'Failed to generate OTP'
+            ], 500);
+        }
+        return response()->json([
+            'message' => 'OTP sent successfully',
+            'otp' => $otp
+        ], 200);
     }
 }

@@ -26,6 +26,10 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard']);
+    Route::post('verify-email', [AuthController::class, 'verifyOtp']);
+    Route::post('send-otp', [AuthController::class, 'sendOtp']);
+
+    Route::post('resend-otp', [AuthController::class, 'resendOtp']);
 });
 
 Route::prefix('v1')->group(function () {

@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\EmailOtpMail;
 use App\Models\TbUsers;
 use Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use function PHPUnit\Framework\returnArgument;
 
 class EmailOtpService
@@ -22,6 +24,7 @@ class EmailOtpService
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+        Mail::to($user->email)->send(new EmailOtpMail($otp));
         return $otp;
     }
     public function verify($user, $otp)

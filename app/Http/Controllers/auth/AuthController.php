@@ -88,6 +88,11 @@ class AuthController extends Controller
                 'message' => 'User not found'
             ], 404);
         }
+        if ($user->email_verified) {
+            return response()->json([
+                'message' => 'Email already verified'
+            ], 400);
+        }
         $otp = $emailService->generate($user);
         if (!$otp) {
             return response()->json([

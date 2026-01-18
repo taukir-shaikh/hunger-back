@@ -47,7 +47,7 @@ class AuthService
         }
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
+        return [
             'msg' => 'Login Sucess',
             'user' => [
                 'id' => $user->id,
@@ -57,6 +57,6 @@ class AuthService
             ],
             'token' => $token,
             'token_type' => 'Bearer',
-        ]);
+        ];
     }
 }

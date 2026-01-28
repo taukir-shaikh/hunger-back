@@ -14,6 +14,16 @@ class TbUsers extends Authenticatable
     public $timestamps = true;
     protected $guarded = [];
 
+    public function userLevel()
+    {
+        return $this->belongsTo(TbUserLevels::class, 'user_level_id', 'user_level_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(TbOrders::class, 'user_id', 'id');
+    }
+
     /**
      * Override createToken to generate a longer token string.
      */

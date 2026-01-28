@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\RestaurantController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LearningController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PublicRestaurantController;
 use App\Http\Controllers\RestaurantOrderController;
@@ -79,4 +80,9 @@ Route::prefix('v1')->group(function () {
 
     Route::get('restaurants', [PublicRestaurantController::class, 'index']);
     Route::get('restaurants/{id}', [PublicRestaurantController::class, 'show']);
+});
+
+Route::prefix("v2")->group(function(){
+    Route::get('test',[LearningController::class,'test']);
+    Route::post('test',[LearningController::class,'postTest']);
 });

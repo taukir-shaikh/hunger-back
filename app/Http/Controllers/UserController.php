@@ -18,4 +18,13 @@ class UserController extends Controller
         }
         return response()->json(['message' => 'Profile updated successfully', 'user' => $updatedUser], 200);
     }
+
+    public function getProfile()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+        return response()->json(['user' => $user], 200);
+    }
 }

@@ -12,7 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/user-profile', [DashboardController::class, 'index']);
+Route::get('/user-profile', [DashboardController::class, 'index'])->middleware('throttle:5,1');
+Route::get('/user-test', [DashboardController::class, 'test']);
 // ->middleware('auth:sanctum');
 
 Route::prefix('auth')->group(function () {
@@ -51,6 +52,7 @@ Route::prefix('v1')->group(function () {
     // User Routes
     Route::prefix('user')->middleware(['auth:sanctum', RoleMiddleware::class . ':USER'])->group(function () {
         Route::put('profile', [UserController::class, 'updateProfile']);
+        Route::get('profile', [UserController::class, 'getProfile']);
         Route::post('orders', [OrderController::class, 'orderStore']);
         Route::get('orders', [OrderController::class, 'orderIndex']);
         Route::get('orders/{id}', [OrderController::class, 'orderShow']);

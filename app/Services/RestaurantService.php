@@ -3,12 +3,22 @@
 namespace App\Services;
 
 use App\Models\TbRestaurants;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
 class RestaurantService
+    /**
+     * Get all restaurants with caching.
+     */
 {
+    public function getAllRestaurants()
+    {
+        return Cache::remember('restaurants.all', 60, function () {
+            return TbRestaurants::get();
+        });
+    }
     /**
      * Store a new restaurant with business logic.
      */

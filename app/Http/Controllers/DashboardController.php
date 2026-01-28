@@ -26,4 +26,11 @@ class DashboardController extends Controller
             'restaurants' => $restaurants
         ]);
     }
+
+    public function test()
+    {
+        $data = DB::select("Select * from tb_users where is_active = ?",[!true]);
+        return $data;
+        // return response()->json(['message' => 'Test method called successfully!'], 200);
+    }
 }
